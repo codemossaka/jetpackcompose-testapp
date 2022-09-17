@@ -2,19 +2,27 @@ package ru.atmosphereapp.movieapp.screens.detail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import ru.atmosphereapp.movieapp.model.Movie
+import ru.atmosphereapp.movieapp.model.getMovies
+import ru.atmosphereapp.movieapp.widgets.DisplayImage
+import ru.atmosphereapp.movieapp.widgets.MovieRow
 
 @Composable
-fun DetailScreen(navController: NavController, movieData: String?) {
-
+fun DetailScreen(navController: NavController, movieId: String?) {
+    val movieList = getMovies().filter { it.id == movieId }
     Scaffold(topBar = {
         TopAppBar(backgroundColor = Color.Transparent,
             elevation = 0.dp) {
@@ -25,7 +33,7 @@ fun DetailScreen(navController: NavController, movieData: String?) {
                     })
                 Spacer(modifier = Modifier.width(100.dp))
 
-                Text(text = "Movies")
+                Text(text = "Title: ${movieList[0].title}")
             }
         }
     }) {
@@ -34,12 +42,31 @@ fun DetailScreen(navController: NavController, movieData: String?) {
             .fillMaxWidth()) {
 
             Column(horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
-                Text(text = movieData.toString(), style = MaterialTheme.typography.h5)
-
-                Spacer(modifier = Modifier.height(23.dp))
+                verticalArrangement = Arrangement.Top) {
+                Text(text = movieList[0].title, style = MaterialTheme.typography.h5)
+                MovieRow(movie = movieList.first())
+                Spacer(modifier = Modifier.height(8.dp))
+                Divider()
+                Text(text = "Movie Images")
+                HorizontalScrollableImageView(movieList)
             }
         }
     }
 
+}
+
+@Composable
+private fun HorizontalScrollableImageView(movieList: List<Movie>) {
+    LazyRow {
+        items(movieList.first().images) {
+            Card(modifier = Modifier
+                .padding(12.dp)
+                .size(240.dp),
+                elevation = 5.dp) {
+                DisplayImage(imageUrl = it,
+                    contentDescription = "it $it",
+                    modifier = Modifier.clip(shape = RectangleShape))
+            }
+        }
+    }
 }
